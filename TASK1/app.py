@@ -159,12 +159,32 @@ with st.sidebar:
 
     st.divider()
 
+        # Clear Chat button
     if st.button(
         "🧹 Clear Chat",
         use_container_width=True
     ):
         st.session_state.messages = []
         st.rerun()
+
+    # Developer credit
+    st.markdown(
+        """
+        <div style="
+            text-align: center;
+            padding-top: 12px;
+            padding-bottom: 5px;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 400;
+        ">
+            Made by <span style="color: #e2e8f0; font-weight: 600;">
+            Mehul Gupta
+            </span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 # --------------------------------------------------
@@ -214,7 +234,24 @@ for message in st.session_state.messages:
         message["role"],
         avatar="🤖" if message["role"] == "assistant" else "👤"
     ):
+
         st.markdown(message["content"])
+
+        # Display AI analysis for chatbot responses
+        if (
+            message["role"] == "assistant"
+            and "intent" in message
+        ):
+
+            with st.expander("🔍 AI Analysis"):
+
+                st.write(
+                    f"**Detected Intent:** `{message['intent']}`"
+                )
+
+                st.write(
+                    f"**Match Score:** `{message['confidence']:.1%}`"
+                )
 
 
 # --------------------------------------------------
@@ -253,7 +290,9 @@ if not st.session_state.messages:
             st.session_state.messages.append(
                 {
                     "role": "assistant",
-                    "content": response
+                    "content": response,
+                    "intent": intent,
+                    "confidence": confidence
                 }
             )
 
@@ -282,7 +321,9 @@ if not st.session_state.messages:
             st.session_state.messages.append(
                 {
                     "role": "assistant",
-                    "content": response
+                    "content": response,
+                    "intent": intent,
+                    "confidence": confidence
                 }
             )
 
@@ -308,7 +349,7 @@ if user_input:
         }
     )
 
-    # Generate response
+    # Generate chatbot response
     response, intent, confidence = get_response(
         user_input
     )
@@ -317,7 +358,9 @@ if user_input:
     st.session_state.messages.append(
         {
             "role": "assistant",
-            "content": response
+            "content": response,
+            "intent": intent,
+            "confidence": confidence
         }
     )
 
