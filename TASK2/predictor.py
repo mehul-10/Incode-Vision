@@ -8,12 +8,22 @@ import joblib
 # MODEL PATHS
 # ============================================================
 
+# Resolve paths relative to THIS file's location, not the current
+# working directory. This matters on Streamlit Cloud, where the app
+# may run with a working directory that isn't the folder app.py
+# lives in (e.g. when app.py sits in a subfolder like TASK2/).
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
+
 MODEL_PATH = os.path.join(
+    BASE_DIR,
     "models",
     "spam_classifier.pkl"
 )
 
 VECTORIZER_PATH = os.path.join(
+    BASE_DIR,
     "models",
     "tfidf_vectorizer.pkl"
 )

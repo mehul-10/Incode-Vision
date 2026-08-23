@@ -7,6 +7,12 @@ import streamlit as st
 from predictor import predict_spam
 
 
+# Resolve paths relative to THIS file's location, not the current
+# working directory (matters on Streamlit Cloud when app.py lives
+# in a subfolder of the repo, e.g. TASK2/).
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 # ============================================================
 # PAGE CONFIGURATION
 # ============================================================
@@ -359,7 +365,7 @@ with example_col2:
 st.divider()
 st.markdown("### 📊 Model Performance")
 
-EVAL_RESULTS_PATH = os.path.join("models", "eval_results.json")
+EVAL_RESULTS_PATH = os.path.join(BASE_DIR, "models", "eval_results.json")
 
 if not os.path.exists(EVAL_RESULTS_PATH):
 
