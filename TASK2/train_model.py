@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -35,6 +36,11 @@ MODEL_PATH = os.path.join(
 VECTORIZER_PATH = os.path.join(
     MODEL_DIR,
     "tfidf_vectorizer.pkl"
+)
+
+EVAL_RESULTS_PATH = os.path.join(
+    MODEL_DIR,
+    "eval_results.json"
 )
 
 
@@ -98,6 +104,10 @@ print(f"Total messages: {len(df)}")
 
 print("\nClass distribution:")
 print(df["label"].value_counts())
+
+original_class_distribution = (
+    df["label"].value_counts().to_dict()
+)
 
 
 # ============================================================
@@ -328,11 +338,13 @@ if best_model_name == "Multinomial Naive Bayes":
 
     best_model = nb_model
     best_predictions = nb_predictions
+    best_results = nb_results
 
 else:
 
     best_model = lr_model
     best_predictions = lr_predictions
+    best_results = lr_results
 
 
 print(
@@ -348,6 +360,11 @@ cm = confusion_matrix(
     y_test,
     best_predictions
 )
+
+# cm layout with labels=[0,1] (Ham, Spam) is:
+# [[TN, FP],
+#  [FN, TP]]
+tn, fp, fn, tp = cm.ravel()
 
 
 plt.figure(
@@ -406,5 +423,40 @@ print(MODEL_PATH)
 
 print("\nVectorizer saved to:")
 print(VECTORIZER_PATH)
+
+
+# ============================================================
+# SAVE EVALUATION RESULTS (used by the Streamlit app)
+# ============================================================
+
+eval_results = {
+    "model_name": best_model_name,
+    "accuracy": best_results["accuracy"],
+    "precision": best_results["precision"],
+    "recall": best_results["recall"],
+    "f1": best_results["f1"],
+    "confusion_matrix": {
+        "tn": int(tn),
+        "fp": int(fp),
+        "fn": int(fn),
+        "tp": int(tp),
+    },
+    "dataset": {
+        "total_messages_raw": int(sum(original_class_distribution.values())),
+        "class_distribution_raw": {
+            str(k): int(v) for k, v in original_class_distribution.items()
+        },
+        "total_after_cleaning": int(len(df)),
+        "train_size": int(len(X_train)),
+        "test_size": int(len(X_test)),
+    },
+    "model_comparison": results_df.to_dict(orient="records"),
+}
+
+with open(EVAL_RESULTS_PATH, "w") as f:
+    json.dump(eval_results, f, indent=2)
+
+print("\nEvaluation results saved to:")
+print(EVAL_RESULTS_PATH)
 
 print("\nTraining completed successfully! ✅")

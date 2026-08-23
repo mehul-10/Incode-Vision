@@ -1,0 +1,39 @@
+{
+  "model_name": "Multinomial Naive Bayes",
+  "accuracy": 0.9775609756097561,
+  "precision": 1.0,
+  "recall": 0.816,
+  "f1": 0.8986784140969163,
+  "confusion_matrix": {
+    "tn": 900,
+    "fp": 0,
+    "fn": 23,
+    "tp": 102
+  },
+  "dataset": {
+    "total_messages_raw": 5572,
+    "class_distribution_raw": {
+      "ham": 4825,
+      "spam": 747
+    },
+    "total_after_cleaning": 5125,
+    "train_size": 4100,
+    "test_size": 1025
+  },
+  "model_comparison": [
+    {
+      "model": "Multinomial Naive Bayes",
+      "accuracy": 0.9775609756097561,
+      "precision": 1.0,
+      "recall": 0.816,
+      "f1": 0.8986784140969163
+    },
+    {
+      "model": "Logistic Regression",
+      "accuracy": 0.9717073170731707,
+      "precision": 1.0,
+      "recall": 0.768,
+      "f1": 0.8687782805429864
+    }
+  ]
+}
