@@ -21,22 +21,29 @@ def load_model():
 
 
 def generate_caption(image):
-    """Generate a caption for a PIL image."""
+    """Generate a more descriptive caption for a PIL image."""
 
     if image is None:
         raise ValueError("No image was provided.")
 
     processor, model = load_model()
 
+    prompt = "A detailed description of this image is"
+
     inputs = processor(
         images=image,
+        text=prompt,
         return_tensors="pt"
     )
 
     output = model.generate(
         **inputs,
-        max_new_tokens=50,
-        num_beams=4,
+        max_new_tokens=80,
+        min_new_tokens=10,
+        num_beams=8,
+        length_penalty=1.2,
+        repetition_penalty=1.2,
+        no_repeat_ngram_size=2,
         early_stopping=True
     )
 
