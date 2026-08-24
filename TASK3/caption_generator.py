@@ -1,30 +1,30 @@
 import streamlit as st
-from transformers import BlipProcessor, BlipForConditionalGeneration
+from transformers import BlipForConditionalGeneration, BlipProcessor
+
+
+MODEL_NAME = "Salesforce/blip-image-captioning-base"
 
 
 @st.cache_resource
 def load_model():
-    """
-    Load the pre-trained BLIP image captioning model.
-    """
-
-    model_name = "Salesforce/blip-image-captioning-base"
+    """Load and cache the pre-trained BLIP model."""
 
     processor = BlipProcessor.from_pretrained(
-        model_name
+        MODEL_NAME
     )
 
     model = BlipForConditionalGeneration.from_pretrained(
-        model_name
+        MODEL_NAME
     )
 
     return processor, model
 
 
 def generate_caption(image):
-    """
-    Generate a caption for the uploaded image.
-    """
+    """Generate a caption for a PIL image."""
+
+    if image is None:
+        raise ValueError("No image was provided.")
 
     processor, model = load_model()
 
@@ -35,7 +35,9 @@ def generate_caption(image):
 
     output = model.generate(
         **inputs,
-        max_new_tokens=50
+        max_new_tokens=50,
+        num_beams=4,
+        early_stopping=True
     )
 
     caption = processor.decode(
@@ -43,4 +45,4 @@ def generate_caption(image):
         skip_special_tokens=True
     )
 
-    return caption
+    return caption.strip()
