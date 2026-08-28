@@ -1,55 +1,48 @@
-import streamlit as st
-from transformers import BlipForConditionalGeneration, BlipProcessor
+from transformers import BlipProcessor, BlipForConditionalGeneration
+from PIL import Image
+import torch
 
 
 MODEL_NAME = "Salesforce/blip-image-captioning-base"
 
 
-@st.cache_resource
-def load_model():
-    """Load and cache the pre-trained BLIP model."""
+# Load model once
+processor = BlipProcessor.from_pretrained(MODEL_NAME)
 
-    processor = BlipProcessor.from_pretrained(
-        MODEL_NAME
-    )
-
-    model = BlipForConditionalGeneration.from_pretrained(
-        MODEL_NAME
-    )
-
-    return processor, model
+model = BlipForConditionalGeneration.from_pretrained(
+    MODEL_NAME
+)
 
 
 def generate_caption(image):
-    """Generate a more descriptive caption for a PIL image."""
 
-    if image is None:
-        raise ValueError("No image was provided.")
+    # Make sure image is RGB
+    if image.mode != "RGB":
+        image = image.convert("RGB")
 
-    processor, model = load_model()
-
-    prompt = "A detailed description of this image is"
-
+    # Process image
     inputs = processor(
         images=image,
-        text=prompt,
         return_tensors="pt"
     )
 
-    output = model.generate(
-        **inputs,
-        max_new_tokens=80,
-        min_new_tokens=10,
-        num_beams=8,
-        length_penalty=1.2,
-        repetition_penalty=1.2,
-        no_repeat_ngram_size=2,
-        early_stopping=True
-    )
+    # Generate caption
+    with torch.no_grad():
 
+        output = model.generate(
+            **inputs,
+            max_new_tokens=30,
+            min_new_tokens=5,
+            num_beams=5,
+            repetition_penalty=1.2,
+            length_penalty=1.0,
+            early_stopping=True
+        )
+
+    # Convert output to text
     caption = processor.decode(
         output[0],
         skip_special_tokens=True
     )
 
-    return caption.strip()
+    return caption
